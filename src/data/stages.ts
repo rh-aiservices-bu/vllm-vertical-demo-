@@ -35,10 +35,10 @@ export const stages: StageDefinition[] = [
     id: 2,
     slug: 'quantized',
     title: 'Quantized Model (INT8)',
-    subtitle: 'Reduced Precision, Higher Throughput',
+    subtitle: 'Smaller Footprint, Higher Throughput',
     category: 'vertical',
     description:
-      'The same gpt-oss-20b model quantized to INT8 precision. Quantization reduces memory footprint and increases compute throughput with minimal quality degradation, enabling significantly faster inference.',
+      'The same gpt-oss-20b model quantized to INT8. Quantization reduces memory footprint and increases compute throughput with less than 1% change in output quality, enabling significantly faster inference.',
     bullets: [
       'INT8 quantization reduces model memory by ~50%',
       'Faster matrix multiplications on tensor cores',
