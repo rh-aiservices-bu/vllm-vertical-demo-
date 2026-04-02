@@ -1,7 +1,12 @@
+import { useState, useEffect, useCallback } from 'react';
 import { motion } from 'framer-motion';
 import { RequestParticle } from '../../animations/RequestParticle';
 import { UserGroup } from '../../animations/UserGroup';
 import { scaleIn } from '../../animations/variants';
+
+function jitter(base: number, range: number) {
+  return Math.max(0.10, Math.min(0.99, base + (Math.random() - 0.5) * range));
+}
 
 export function IntelligentScheduler() {
   const scorers = [
@@ -10,12 +15,27 @@ export function IntelligentScheduler() {
     { label: 'Active Reqs', weight: 2, color: '#a78bfa' },
   ];
 
+  const baseScores = [0.92, 0.61, 0.88, 0.78];
+  const [scores, setScores] = useState(baseScores);
+
+  const tick = useCallback(() => {
+    setScores(baseScores.map((b) => jitter(b, 0.20)));
+  }, []);
+
+  useEffect(() => {
+    const id = setInterval(tick, 1800);
+    return () => clearInterval(id);
+  }, [tick]);
+
   const replicas = [
-    { x: 380, y: 30, label: 'Replica 1', score: 0.92, warm: true },
-    { x: 380, y: 110, label: 'Replica 2', score: 0.61, warm: true },
-    { x: 380, y: 190, label: 'Replica 3', score: 0.88, warm: true },
-    { x: 380, y: 270, label: 'Replica 4', score: 0.78, warm: true },
+    { x: 380, y: 30, label: 'Replica 1' },
+    { x: 380, y: 110, label: 'Replica 2' },
+    { x: 380, y: 190, label: 'Replica 3' },
+    { x: 380, y: 270, label: 'Replica 4' },
   ];
+
+  // The highest-scoring replica gets the most prominent routing
+  const maxScore = Math.max(...scores);
 
   return (
     <motion.svg
@@ -32,7 +52,7 @@ export function IntelligentScheduler() {
       </defs>
       <rect x="0" y="0" width="620" height="380" fill="url(#glow6)" />
 
-      {/* User icons — same user count, smarter routing */}
+      {/* User icons */}
       <UserGroup x={2} y={55} count={30} columns={3} label="Users" color="#a78bfa" iconSize={10} />
       {[0, 1, 2].map((i) => (
         <RequestParticle
@@ -100,15 +120,15 @@ export function IntelligentScheduler() {
           key={`line${i}`}
           x1="305" y1="190"
           x2={r.x} y2={r.y + 30}
-          stroke={r.warm ? '#8b5cf6' : '#334155'}
-          strokeWidth={r.warm ? 1.5 : 0.5}
-          strokeDasharray={r.warm ? '0' : '4 2'}
-          opacity={r.warm ? 0.6 : 0.3}
+          stroke="#8b5cf6"
+          strokeWidth={scores[i] === maxScore ? 2 : 1}
+          opacity={0.3 + scores[i] * 0.5}
+          transition={{ duration: 0.6 }}
         />
       ))}
 
-      {/* Smart routing particles — go to warm replicas */}
-      {replicas.filter(r => r.warm).map((r, i) => (
+      {/* Smart routing particles — all replicas get traffic, weighted by score */}
+      {replicas.map((r, i) => (
         <RequestParticle
           key={`p${i}`}
           startX={305}
@@ -116,47 +136,61 @@ export function IntelligentScheduler() {
           endX={r.x}
           endY={r.y + 30}
           delay={i * 0.7}
-          duration={0.8}
+          duration={0.6 + (1 - scores[i]) * 0.6}
           color="#8b5cf6"
         />
       ))}
 
-      {/* Replicas */}
-      {replicas.map((r, i) => (
-        <motion.g key={`rep${i}`} variants={scaleIn}>
-          <rect
-            x={r.x} y={r.y} width="190" height="60" rx="8"
-            fill="#0f172a"
-            stroke={r.warm ? '#8b5cf6' : '#334155'}
-            strokeWidth={r.warm ? 1.5 : 1}
-          />
-          <text x={r.x + 10} y={r.y + 20} fill={r.warm ? '#a78bfa' : '#64748b'} fontSize="10" fontWeight="600">
-            {r.label}
-          </text>
-          {/* Score badge */}
-          <rect x={r.x + 120} y={r.y + 6} width="58" height="18" rx="4" fill={r.warm ? '#8b5cf6' : '#334155'} opacity="0.2" />
-          <text x={r.x + 149} y={r.y + 19} textAnchor="middle" fill={r.warm ? '#a78bfa' : '#64748b'} fontSize="9">
-            Score: {r.score}
-          </text>
+      {/* Replicas with live scores */}
+      {replicas.map((r, i) => {
+        const score = scores[i];
+        const isBest = score === maxScore;
+        const cacheWidth = Math.round(score * 80);
+        return (
+          <motion.g key={`rep${i}`} variants={scaleIn}>
+            <rect
+              x={r.x} y={r.y} width="190" height="60" rx="8"
+              fill="#0f172a"
+              stroke={isBest ? '#a78bfa' : '#8b5cf6'}
+              strokeWidth={isBest ? 2 : 1}
+            />
+            <text x={r.x + 10} y={r.y + 20} fill="#a78bfa" fontSize="10" fontWeight="600">
+              {r.label}
+            </text>
+            {/* Animated score badge */}
+            <rect x={r.x + 116} y={r.y + 6} width="62" height="18" rx="4" fill="#8b5cf6" opacity="0.2" />
+            <motion.text
+              x={r.x + 147}
+              y={r.y + 19}
+              textAnchor="middle"
+              fill="#a78bfa"
+              fontSize="9"
+              key={`score-${i}-${score.toFixed(2)}`}
+              initial={{ opacity: 0.5 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 0.3 }}
+            >
+              Score: {score.toFixed(2)}
+            </motion.text>
 
-          {/* Cache bar */}
-          <text x={r.x + 10} y={r.y + 38} fill="#64748b" fontSize="8">Prefix Cache</text>
-          <rect x={r.x + 78} y={r.y + 30} width="100" height="8" rx="2" fill="#0f172a" stroke="#334155" />
-          <motion.rect
-            x={r.x + 79} y={r.y + 31} height="6" rx="1.5"
-            fill={r.warm ? '#22d3ee' : '#334155'}
-            initial={{ width: 0 }}
-            animate={{ width: r.warm ? 70 : 10 }}
-            transition={{ duration: 1.2, delay: i * 0.15 }}
-          />
-          <text x={r.x + 10} y={r.y + 53} fill={r.warm ? '#34d399' : '#fb7185'} fontSize="8">
-            {r.warm ? '✓ Cache HIT — no prefill needed' : '○ Low affinity'}
-          </text>
-        </motion.g>
-      ))}
+            {/* Cache bar */}
+            <text x={r.x + 10} y={r.y + 38} fill="#64748b" fontSize="8">Prefix Cache</text>
+            <rect x={r.x + 78} y={r.y + 30} width="100" height="8" rx="2" fill="#0f172a" stroke="#334155" />
+            <motion.rect
+              x={r.x + 79} y={r.y + 31} height="6" rx="1.5"
+              fill="#22d3ee"
+              animate={{ width: cacheWidth }}
+              transition={{ duration: 0.6 }}
+            />
+            <text x={r.x + 10} y={r.y + 53} fill="#34d399" fontSize="8">
+              {isBest ? '★ Best match — routing here' : '✓ Cache HIT — no prefill needed'}
+            </text>
+          </motion.g>
+        );
+      })}
 
       {/* Responses */}
-      {replicas.filter(r => r.warm).map((r, i) => (
+      {replicas.map((r, i) => (
         <RequestParticle
           key={`resp${i}`}
           startX={r.x + 190}
