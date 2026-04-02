@@ -77,7 +77,7 @@ export function MetricsPanel({ stage }: Props) {
         <MetricCard
           label="Throughput"
           value={stage.metrics.throughput}
-          unit="req/s"
+          unit="users/s"
           previousValue={prev?.metrics.throughput}
           color={color}
         />
@@ -110,10 +110,10 @@ export function MetricsPanel({ stage }: Props) {
           <LineChart data={chartData} margin={{ top: 5, right: 5, bottom: 5, left: 5 }}>
             <CartesianGrid strokeDasharray="3 3" stroke="#334155" />
             <XAxis
-              dataKey="concurrency"
+              dataKey="users"
               stroke="#64748b"
               fontSize={10}
-              label={{ value: 'Concurrent Requests', position: 'bottom', offset: -2, style: { fill: '#64748b', fontSize: 10 } }}
+              label={{ value: 'Concurrent Users', position: 'bottom', offset: -2, style: { fill: '#64748b', fontSize: 10 } }}
             />
             <YAxis stroke="#64748b" fontSize={10} />
             <Tooltip

@@ -1,5 +1,6 @@
 import { motion } from 'framer-motion';
 import { RequestParticle } from '../../animations/RequestParticle';
+import { UserGroup } from '../../animations/UserGroup';
 import { scaleIn } from '../../animations/variants';
 
 export function QuantizedModel() {
@@ -18,9 +19,8 @@ export function QuantizedModel() {
       </defs>
       <rect x="0" y="0" width="600" height="340" fill="url(#glow2)" />
 
-      <motion.text x="30" y="170" fill="#94a3b8" fontSize="11" fontWeight="500" variants={scaleIn}>
-        Requests
-      </motion.text>
+      {/* User icons — same users, faster serving */}
+      <UserGroup x={8} y={80} count={10} columns={3} label="Users" iconSize={12} />
 
       {/* Faster particles */}
       <RequestParticle startX={80} startY={140} endX={195} endY={140} delay={0} duration={1.0} />

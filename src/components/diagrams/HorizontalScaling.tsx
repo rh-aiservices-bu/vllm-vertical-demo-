@@ -1,5 +1,6 @@
 import { motion } from 'framer-motion';
 import { RequestParticle } from '../../animations/RequestParticle';
+import { UserGroup } from '../../animations/UserGroup';
 import { scaleIn } from '../../animations/variants';
 
 export function HorizontalScaling() {
@@ -25,10 +26,8 @@ export function HorizontalScaling() {
       </defs>
       <rect x="0" y="0" width="600" height="380" fill="url(#glow5)" />
 
-      {/* Incoming requests */}
-      <motion.text x="15" y="195" fill="#94a3b8" fontSize="11" fontWeight="500" variants={scaleIn}>
-        High Load
-      </motion.text>
+      {/* User icons — many more users */}
+      <UserGroup x={2} y={60} count={30} columns={4} label="Users" color="#a78bfa" iconSize={10} />
       {[0, 1, 2, 3].map((i) => (
         <RequestParticle
           key={i}
@@ -159,7 +158,7 @@ export function HorizontalScaling() {
       <motion.g variants={scaleIn}>
         <rect x="145" y="340" width="310" height="30" rx="6" fill="#1e293b" stroke="#fbbf24" strokeWidth="1" />
         <text x="300" y="360" textAnchor="middle" fill="#fbbf24" fontSize="10">
-          p99 TTFT: 650ms — Cold cache misses cause tail latency spikes
+          p99 TTFT: 650ms — Some users hit cold caches, causing tail latency spikes
         </text>
       </motion.g>
     </motion.svg>

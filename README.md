@@ -1,54 +1,42 @@
-# React + TypeScript + Vite
+# vLLM to LLM-D: Vertical to Horizontal Scaling Demo
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+An interactive, animated demo that walks through the journey of scaling LLM inference from a single vLLM instance to a fully disaggregated LLM-D deployment.
 
-Currently, two official plugins are available:
+## Stages
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+The demo progresses through 7 stages, each with animated architecture diagrams, live performance metrics, and growing user icons that visualize increasing scale:
 
-## Expanding the ESLint configuration
+**Vertical Scaling (Stages 1-4)**
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+1. **Single vLLM Instance** - KV Cache and Continuous Batching serving a small user base
+2. **Quantized Model (INT8)** - Reduced precision for faster inference as users grow
+3. **Speculative Decoding** - Draft model acceleration pushing single-instance performance further
+4. **Vertical Scaling Limits** - System saturates under heavy user load, tail latencies explode
 
-```js
-export default tseslint.config({
-  extends: [
-    // Remove ...tseslint.configs.recommended and replace with this
-    ...tseslint.configs.recommendedTypeChecked,
-    // Alternatively, use this for stricter rules
-    ...tseslint.configs.strictTypeChecked,
-    // Optionally, add this for stylistic rules
-    ...tseslint.configs.stylisticTypeChecked,
-  ],
-  languageOptions: {
-    // other options...
-    parserOptions: {
-      project: ['./tsconfig.node.json', './tsconfig.app.json'],
-      tsconfigRootDir: import.meta.dirname,
-    },
-  },
-})
+**Horizontal Scaling (Stages 5-7)**
+
+5. **Horizontal Scaling (4 Replicas)** - Scale-out behind a load balancer, but round-robin routing causes cold-cache misses
+6. **LLM-D Intelligent Scheduling** - KV cache-aware routing collapses tail latency with prefix-cache, queue, and active-request scorers
+7. **Prefill / Decode Disaggregation** - Dedicated prefill and decode node pools for massive heterogeneous workload support
+
+## Running
+
+```bash
+npm install
+npm run dev
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+Open http://localhost:5173
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+## Navigation
 
-export default tseslint.config({
-  plugins: {
-    // Add the react-x and react-dom plugins
-    'react-x': reactX,
-    'react-dom': reactDom,
-  },
-  rules: {
-    // other rules...
-    // Enable its recommended typescript rules
-    ...reactX.configs['recommended-typescript'].rules,
-    ...reactDom.configs.recommended.rules,
-  },
-})
-```
+- **Arrow keys** or **spacebar** to move between stages
+- **Number keys 1-7** to jump directly to a stage
+- **Click** the timeline nodes or Previous/Next buttons
+
+## Tech Stack
+
+- React + TypeScript + Vite
+- Framer Motion (animations)
+- Recharts (performance graphs)
+- Tailwind CSS v4

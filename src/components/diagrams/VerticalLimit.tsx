@@ -1,4 +1,5 @@
 import { motion } from 'framer-motion';
+import { UserGroup } from '../../animations/UserGroup';
 import { scaleIn } from '../../animations/variants';
 
 export function VerticalLimit() {
@@ -17,28 +18,10 @@ export function VerticalLimit() {
       </defs>
       <rect x="0" y="0" width="600" height="340" fill="url(#glow4)" />
 
-      {/* Queued requests piling up */}
-      <motion.text x="15" y="60" fill="#fb7185" fontSize="11" fontWeight="600" variants={scaleIn}>
-        Request Queue
-      </motion.text>
-      {Array.from({ length: 8 }).map((_, i) => (
-        <motion.rect
-          key={i}
-          x={25 + (i % 2) * 55}
-          y={70 + Math.floor(i / 2) * 28}
-          width="48"
-          height="22"
-          rx="4"
-          fill="#fb7185"
-          opacity={0.15}
-          stroke="#fb7185"
-          strokeWidth="1"
-          animate={{ opacity: [0.1, 0.3, 0.1] }}
-          transition={{ duration: 1.2, delay: i * 0.15, repeat: Infinity }}
-        />
-      ))}
+      {/* Too many users piling up */}
+      <UserGroup x={5} y={45} count={20} columns={4} label="Users" color="#fb7185" iconSize={11} />
       <motion.text
-        x="72" y="195"
+        x="38" y="218"
         textAnchor="middle"
         fill="#fb7185"
         fontSize="10"
@@ -49,7 +32,7 @@ export function VerticalLimit() {
         Waiting...
       </motion.text>
 
-      {/* Slow flowing requests */}
+      {/* Slow flowing users */}
       {[0, 1].map((i) => (
         <motion.circle
           key={`q${i}`}
@@ -103,7 +86,7 @@ export function VerticalLimit() {
           animate={{ opacity: [0.5, 1, 0.5] }}
           transition={{ duration: 1, repeat: Infinity }}
         />
-        <text x="320" y="200" textAnchor="middle" fill="#f1f5f9" fontSize="8">24 req/s (CEILING)</text>
+        <text x="320" y="200" textAnchor="middle" fill="#f1f5f9" fontSize="8">24 users/s (CEILING)</text>
 
         {/* Tail latency explosion */}
         <rect x="218" y="224" width="204" height="62" rx="6" fill="#1e293b" stroke="#fb7185" strokeWidth="1" />

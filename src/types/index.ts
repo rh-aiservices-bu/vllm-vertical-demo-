@@ -7,7 +7,7 @@ export interface StageMetrics {
 }
 
 export interface LoadCurvePoint {
-  concurrency: number;
+  users: number;
   throughput: number;
   ttftP50: number;
   ttftP95: number;

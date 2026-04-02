@@ -1,5 +1,6 @@
 import { motion } from 'framer-motion';
 import { RequestParticle } from '../../animations/RequestParticle';
+import { UserGroup } from '../../animations/UserGroup';
 import { scaleIn } from '../../animations/variants';
 
 export function PrefillDecodeDisagg() {
@@ -22,12 +23,10 @@ export function PrefillDecodeDisagg() {
       </defs>
       <rect x="0" y="0" width="700" height="400" fill="url(#glow7)" />
 
-      {/* Requests */}
-      <motion.text x="8" y="200" fill="#94a3b8" fontSize="10" fontWeight="500" variants={scaleIn}>
-        Requests
-      </motion.text>
-      {[0, 1, 2].map(i => (
-        <RequestParticle key={i} startX={55} startY={190 + i * 12} endX={90} endY={200} delay={i * 0.4} duration={0.5} />
+      {/* User icons — massive scale */}
+      <UserGroup x={2} y={30} count={48} columns={4} label="Users" color="#a78bfa" iconSize={9} />
+      {[0, 1, 2, 3].map(i => (
+        <RequestParticle key={i} startX={50} startY={185 + i * 10} endX={90} endY={200} delay={i * 0.3} duration={0.5} />
       ))}
 
       {/* LLM-D Scheduler (center-left) */}
@@ -194,7 +193,7 @@ export function PrefillDecodeDisagg() {
       <motion.g variants={scaleIn}>
         <rect x="95" y="370" width="510" height="26" rx="6" fill="#1e293b" stroke="#34d399" strokeWidth="1" />
         <text x="350" y="388" textAnchor="middle" fill="#34d399" fontSize="10" fontWeight="500">
-          200 req/s | TTFT p99: 210ms | Independent scaling per phase | Production-ready heterogeneous workloads
+          200 users/s | TTFT p99: 210ms | Independent scaling per phase | Production-ready heterogeneous workloads
         </text>
       </motion.g>
     </motion.svg>

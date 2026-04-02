@@ -1,5 +1,6 @@
 import { motion } from 'framer-motion';
 import { RequestParticle } from '../../animations/RequestParticle';
+import { UserGroup } from '../../animations/UserGroup';
 import { scaleIn } from '../../animations/variants';
 
 export function SpeculativeDecoding() {
@@ -18,11 +19,10 @@ export function SpeculativeDecoding() {
       </defs>
       <rect x="0" y="0" width="600" height="340" fill="url(#glow3)" />
 
-      <motion.text x="20" y="170" fill="#94a3b8" fontSize="11" fontWeight="500" variants={scaleIn}>
-        Requests
-      </motion.text>
+      {/* User icons — same users, even faster */}
+      <UserGroup x={5} y={90} count={12} columns={3} label="Users" iconSize={11} />
 
-      <RequestParticle startX={70} startY={170} endX={135} endY={170} delay={0} duration={1.0} />
+      <RequestParticle startX={60} startY={170} endX={135} endY={170} delay={0} duration={1.0} />
 
       {/* Draft Model */}
       <motion.g variants={scaleIn}>

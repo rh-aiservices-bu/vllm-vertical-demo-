@@ -1,5 +1,6 @@
 import { motion } from 'framer-motion';
 import { RequestParticle } from '../../animations/RequestParticle';
+import { UserGroup } from '../../animations/UserGroup';
 import { scaleIn } from '../../animations/variants';
 
 export function SingleInstance() {
@@ -23,12 +24,10 @@ export function SingleInstance() {
 
       <rect x="0" y="0" width="600" height="340" fill="url(#glow1)" />
 
-      {/* Incoming requests label */}
-      <motion.text x="30" y="170" fill="#94a3b8" fontSize="11" fontWeight="500" variants={scaleIn}>
-        Requests
-      </motion.text>
+      {/* User icons */}
+      <UserGroup x={8} y={90} count={6} columns={3} label="Users" iconSize={12} />
 
-      {/* Request particles */}
+      {/* Particles from users to vLLM */}
       <RequestParticle startX={80} startY={140} endX={195} endY={140} delay={0} duration={1.5} />
       <RequestParticle startX={80} startY={170} endX={195} endY={170} delay={0.6} duration={1.5} />
       <RequestParticle startX={80} startY={200} endX={195} endY={200} delay={1.2} duration={1.5} />
@@ -80,7 +79,7 @@ export function SingleInstance() {
         ))}
         {[0, 1, 2, 3].map((i) => (
           <text key={`t${i}`} x={251 + i * 45} y="233" textAnchor="middle" fill="#22d3ee" fontSize="9">
-            Req {i + 1}
+            User {i + 1}
           </text>
         ))}
       </motion.g>

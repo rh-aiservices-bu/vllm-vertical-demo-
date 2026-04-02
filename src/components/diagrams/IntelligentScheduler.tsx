@@ -1,5 +1,6 @@
 import { motion } from 'framer-motion';
 import { RequestParticle } from '../../animations/RequestParticle';
+import { UserGroup } from '../../animations/UserGroup';
 import { scaleIn } from '../../animations/variants';
 
 export function IntelligentScheduler() {
@@ -31,14 +32,12 @@ export function IntelligentScheduler() {
       </defs>
       <rect x="0" y="0" width="620" height="380" fill="url(#glow6)" />
 
-      {/* Incoming requests */}
-      <motion.text x="10" y="185" fill="#94a3b8" fontSize="10" fontWeight="500" variants={scaleIn}>
-        Requests
-      </motion.text>
+      {/* User icons — same user count, smarter routing */}
+      <UserGroup x={2} y={55} count={30} columns={3} label="Users" color="#a78bfa" iconSize={10} />
       {[0, 1, 2].map((i) => (
         <RequestParticle
           key={i}
-          startX={60}
+          startX={55}
           startY={175 + i * 12}
           endX={100}
           endY={190}
@@ -175,7 +174,7 @@ export function IntelligentScheduler() {
       <motion.g variants={scaleIn}>
         <rect x="105" y="345" width="465" height="28" rx="6" fill="#1e293b" stroke="#34d399" strokeWidth="1" />
         <text x="337" y="364" textAnchor="middle" fill="#34d399" fontSize="10" fontWeight="500">
-          p99 TTFT: 260ms — 60% reduction from round-robin | Prefix cache hit rate: 68%
+          p99 TTFT: 260ms — 60% reduction | Prefix cache hit: 68% | Every user hits warm cache
         </text>
       </motion.g>
     </motion.svg>
