@@ -12,7 +12,7 @@ export function IntelligentScheduler() {
 
   const replicas = [
     { x: 380, y: 30, label: 'Replica 1', score: 0.92, warm: true },
-    { x: 380, y: 110, label: 'Replica 2', score: 0.45, warm: false },
+    { x: 380, y: 110, label: 'Replica 2', score: 0.61, warm: true },
     { x: 380, y: 190, label: 'Replica 3', score: 0.88, warm: true },
     { x: 380, y: 270, label: 'Replica 4', score: 0.78, warm: true },
   ];
