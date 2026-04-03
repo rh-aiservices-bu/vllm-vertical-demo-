@@ -106,16 +106,15 @@ export function MetricsPanel({ stage }: Props) {
         <h4 className="text-xs font-medium text-slate-400 uppercase tracking-wider mb-3">
           Performance Under Load
         </h4>
-        <ResponsiveContainer width="100%" height={200}>
-          <LineChart data={chartData} margin={{ top: 5, right: 5, bottom: 5, left: 5 }}>
+        <ResponsiveContainer width="100%" height={220}>
+          <LineChart data={chartData} margin={{ top: 5, right: 5, bottom: 20, left: 5 }}>
             <CartesianGrid strokeDasharray="3 3" stroke="#334155" />
             <XAxis
               dataKey="users"
               stroke="#64748b"
               fontSize={10}
-              label={{ value: 'Concurrent Users', position: 'bottom', offset: -2, style: { fill: '#64748b', fontSize: 10 } }}
             />
-            <YAxis stroke="#64748b" fontSize={10} />
+            <YAxis stroke="#64748b" fontSize={10} label={{ value: 'ms', position: 'insideTopLeft', offset: -2, style: { fill: '#64748b', fontSize: 9 } }} />
             <Tooltip
               contentStyle={{
                 backgroundColor: '#0f172a',
@@ -124,7 +123,7 @@ export function MetricsPanel({ stage }: Props) {
                 fontSize: 11,
               }}
             />
-            <Legend wrapperStyle={{ fontSize: 10 }} />
+            <Legend wrapperStyle={{ fontSize: 10, paddingTop: 4 }} />
             <Line
               type="monotone"
               dataKey="ttftP50"
