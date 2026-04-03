@@ -59,7 +59,7 @@ export function IntelligentScheduler() {
         labels={[
           { text: 'RAG Chatbot', color: '#a78bfa' },
           { text: 'Coding Assist', color: '#fbbf24' },
-          { text: 'Summarization', color: '#22d3ee' },
+          { text: 'Batch Reports', color: '#22d3ee' },
         ]}
         userColor="#a78bfa" agentColor="#fbbf24"
         columns={3} iconSize={9}

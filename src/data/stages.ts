@@ -132,7 +132,7 @@ export const stages: StageDefinition[] = [
     slug: 'horizontal-scaling',
     title: 'Horizontal Scaling (4 Replicas)',
     subtitle: 'Load Balancing with Round-Robin',
-    story: 'A third LOB adds document summarization — platform team scales out to 4 replicas',
+    story: 'Finance adds batch report generation — platform team scales out to 4 replicas',
     category: 'horizontal',
     description:
       'Scaling out to 4 vLLM replicas behind a standard load balancer. User capacity scales nearly linearly, but naive round-robin routing sends users to replicas without considering their KV cache state, causing cold-cache penalties on TTFT.',

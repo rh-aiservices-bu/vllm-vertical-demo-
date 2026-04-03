@@ -30,7 +30,7 @@ export function PrefillDecodeDisagg() {
         labels={[
           { text: 'RAG Chatbot', color: '#a78bfa' },
           { text: 'Coding Assist', color: '#fbbf24' },
-          { text: 'Summarization', color: '#22d3ee' },
+          { text: 'Batch Reports', color: '#22d3ee' },
           { text: 'Agentic Workflows', color: '#34d399' },
         ]}
         userColor="#a78bfa" agentColor="#fbbf24"
