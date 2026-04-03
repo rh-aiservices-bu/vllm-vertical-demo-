@@ -6,15 +6,31 @@ import { StageTimeline } from './components/StageTimeline';
 import { ArchitectureDiagram } from './components/ArchitectureDiagram';
 import { MetricsPanel } from './components/MetricsPanel';
 import { ExplanationPanel } from './components/ExplanationPanel';
+import { ImageSlide } from './components/ImageSlide';
+
+const BASE = import.meta.env.BASE_URL;
+
+const imageSlides = [
+  { page: 0, src: `${BASE}enterprise-genai.png`, title: 'Enterprise GenAI Inference', subtitle: 'Optimize, operationalize and scale AI across the hybrid cloud' },
+  { page: 8, src: `${BASE}maas.png`, title: 'Model as a Service', subtitle: 'Control access and consumption to both self-hosted and proprietary models' },
+  { page: 9, src: `${BASE}model-catalog.png`, title: 'Model Catalog', subtitle: 'Validated models with performance and compatibility verified by Red Hat' },
+];
 
 function App() {
-  const { currentStage, direction, goToStage, nextStage, prevStage, totalStages, autoplay, toggleAutoplay, intervalSec, setIntervalSec } =
+  const { currentPage, currentStage, direction, goToPage, nextPage, prevPage, totalPages, autoplay, toggleAutoplay, intervalSec, setIntervalSec } =
     useStageNavigation();
-  const stage = useMemo(() => stages.find((s) => s.id === currentStage)!, [currentStage]);
-  const isHorizontal = stage.category === 'horizontal';
-  const [darkMode, setDarkMode] = useState(false);
 
+  const stage = useMemo(
+    () => (currentStage ? stages.find((s) => s.id === currentStage)! : null),
+    [currentStage]
+  );
+  const isHorizontal = stage?.category === 'horizontal';
+  const [darkMode, setDarkMode] = useState(false);
   const d = darkMode;
+
+  const imageSlide = imageSlides.find(s => s.page === currentPage);
+  const isImagePage = !!imageSlide;
+  const isStagePage = !!stage;
 
   return (
     <div className={`min-h-screen flex flex-col transition-colors duration-300 ${d ? 'bg-slate-950' : 'bg-white'}`}>
@@ -95,63 +111,74 @@ function App() {
 
       {/* Timeline */}
       <div className={`border-b pt-2 pb-8 ${d ? 'border-slate-800' : 'border-slate-200'}`}>
-        <StageTimeline currentStage={currentStage} goToStage={goToStage} darkMode={d} />
+        <StageTimeline currentPage={currentPage} goToPage={goToPage} darkMode={d} />
       </div>
 
       {/* Main content */}
       <main className="flex-1 max-w-7xl mx-auto w-full px-6 py-6">
         <AnimatePresence mode="wait" custom={direction}>
           <motion.div
-            key={currentStage}
+            key={currentPage}
             custom={direction}
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.25 }}
           >
-            {/* Stage title */}
-            <div className="mb-4">
-              <div className="flex items-center gap-3 mb-1">
-                <span
-                  className={`text-xs font-semibold uppercase tracking-wider px-2 py-0.5 rounded ${
-                    isHorizontal
-                      ? (d ? 'bg-violet-500/15 text-violet-400' : 'bg-violet-500/10 text-violet-600')
-                      : d
-                        ? 'bg-cyan-500/15 text-cyan-400'
-                        : 'bg-cyan-600/10 text-cyan-700'
-                  }`}
-                >
-                  {stage.category} scaling
-                </span>
-                <span className={`text-sm ${d ? 'text-slate-500' : 'text-slate-400'}`}>
-                  Stage {stage.id} of {totalStages}
-                </span>
-              </div>
-              <h2 className={`text-2xl font-bold ${d ? 'text-slate-100' : 'text-slate-900'}`}>{stage.title}</h2>
-              <p className={`text-sm ${isHorizontal ? (d ? 'text-violet-400' : 'text-violet-600') : (d ? 'text-cyan-400' : 'text-cyan-700')}`}>
-                {stage.subtitle}
-              </p>
-              <p className={`text-sm mt-1 italic ${d ? 'text-slate-400' : 'text-slate-500'}`}>
-                {stage.story}
-              </p>
-            </div>
+            {/* Image slides (intro + outro) */}
+            {isImagePage && (
+              <ImageSlide
+                src={imageSlide.src}
+                title={imageSlide.title}
+                subtitle={imageSlide.subtitle}
+                darkMode={d}
+              />
+            )}
 
-            {/* Two-column layout */}
-            <div className="grid grid-cols-1 lg:grid-cols-5 gap-5">
-              {/* Left: Architecture Diagram (3 cols) */}
-              <div className="lg:col-span-3">
-                <ArchitectureDiagram stageId={currentStage} direction={direction} />
-                {/* Explanation below diagram */}
-                <div className="mt-4">
-                  <ExplanationPanel stage={stage} />
+            {/* Stage pages (1-7) */}
+            {isStagePage && stage && (
+              <>
+                {/* Stage title */}
+                <div className="mb-4">
+                  <div className="flex items-center gap-3 mb-1">
+                    <span
+                      className={`text-xs font-semibold uppercase tracking-wider px-2 py-0.5 rounded ${
+                        isHorizontal
+                          ? (d ? 'bg-violet-500/15 text-violet-400' : 'bg-violet-500/10 text-violet-600')
+                          : d
+                            ? 'bg-cyan-500/15 text-cyan-400'
+                            : 'bg-cyan-600/10 text-cyan-700'
+                      }`}
+                    >
+                      {stage.category} scaling
+                    </span>
+                    <span className={`text-sm ${d ? 'text-slate-500' : 'text-slate-400'}`}>
+                      Stage {stage.id} of 7
+                    </span>
+                  </div>
+                  <h2 className={`text-2xl font-bold ${d ? 'text-slate-100' : 'text-slate-900'}`}>{stage.title}</h2>
+                  <p className={`text-sm ${isHorizontal ? (d ? 'text-violet-400' : 'text-violet-600') : (d ? 'text-cyan-400' : 'text-cyan-700')}`}>
+                    {stage.subtitle}
+                  </p>
+                  <p className={`text-sm mt-1 italic ${d ? 'text-slate-400' : 'text-slate-500'}`}>
+                    {stage.story}
+                  </p>
                 </div>
-              </div>
 
-              {/* Right: Metrics Panel (2 cols) */}
-              <div className="lg:col-span-2">
-                <MetricsPanel stage={stage} />
-              </div>
-            </div>
+                {/* Two-column layout */}
+                <div className="grid grid-cols-1 lg:grid-cols-5 gap-5">
+                  <div className="lg:col-span-3">
+                    <ArchitectureDiagram stageId={stage.id} direction={direction} />
+                    <div className="mt-4">
+                      <ExplanationPanel stage={stage} />
+                    </div>
+                  </div>
+                  <div className="lg:col-span-2">
+                    <MetricsPanel stage={stage} />
+                  </div>
+                </div>
+              </>
+            )}
           </motion.div>
         </AnimatePresence>
       </main>
@@ -160,10 +187,10 @@ function App() {
       <footer className={`border-t px-6 py-4 ${d ? 'border-slate-800' : 'border-slate-200'}`}>
         <div className="max-w-7xl mx-auto flex justify-between items-center">
           <button
-            onClick={prevStage}
-            disabled={currentStage === 1}
+            onClick={prevPage}
+            disabled={currentPage === 0}
             className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
-              currentStage === 1
+              currentPage === 0
                 ? d ? 'text-slate-600 bg-slate-800/50 cursor-not-allowed' : 'text-slate-400 bg-slate-100 cursor-not-allowed'
                 : d ? 'text-slate-200 bg-slate-800 hover:bg-slate-700 cursor-pointer' : 'text-slate-700 bg-slate-100 hover:bg-slate-200 cursor-pointer'
             }`}
@@ -171,15 +198,19 @@ function App() {
             ← Previous
           </button>
           <div className={`text-xs ${d ? 'text-slate-500' : 'text-slate-400'}`}>
-            {currentStage < 5
-              ? 'Vertical Scaling Optimizations'
-              : 'Horizontal Scaling with llm-d'}
+            {currentPage === 0
+              ? 'Enterprise GenAI Overview'
+              : currentPage <= 4
+                ? 'Vertical Scaling Optimizations'
+                : currentPage <= 7
+                  ? 'Horizontal Scaling with llm-d'
+                  : 'Platform Capabilities'}
           </div>
           <button
-            onClick={nextStage}
-            disabled={currentStage === totalStages}
+            onClick={nextPage}
+            disabled={currentPage === totalPages - 1}
             className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
-              currentStage === totalStages
+              currentPage === totalPages - 1
                 ? d ? 'text-slate-600 bg-slate-800/50 cursor-not-allowed' : 'text-slate-400 bg-slate-100 cursor-not-allowed'
                 : isHorizontal
                   ? 'text-white bg-violet-600 hover:bg-violet-500 cursor-pointer'
