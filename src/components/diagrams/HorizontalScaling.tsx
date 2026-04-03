@@ -1,6 +1,6 @@
 import { motion } from 'framer-motion';
 import { RequestParticle } from '../../animations/RequestParticle';
-import { UserGroup } from '../../animations/UserGroup';
+import { WorkloadPanel } from '../../animations/WorkloadPanel';
 import { scaleIn } from '../../animations/variants';
 
 export function HorizontalScaling() {
@@ -26,8 +26,18 @@ export function HorizontalScaling() {
       </defs>
       <rect x="0" y="0" width="600" height="380" fill="url(#glow5)" />
 
-      {/* User icons — many more users */}
-      <UserGroup x={2} y={60} count={30} columns={4} label="Users" color="#a78bfa" iconSize={10} />
+      {/* Multiple LOB workloads at scale */}
+      <WorkloadPanel
+        x={2} y={40}
+        users={16} agents={8}
+        labels={[
+          { text: 'RAG Chatbot', color: '#a78bfa' },
+          { text: 'Coding Assist', color: '#fbbf24' },
+          { text: 'Summarization', color: '#22d3ee' },
+        ]}
+        userColor="#a78bfa" agentColor="#fbbf24"
+        columns={4} iconSize={9}
+      />
       {[0, 1, 2, 3].map((i) => (
         <RequestParticle
           key={i}

@@ -1,6 +1,6 @@
 import { motion } from 'framer-motion';
 import { RequestParticle } from '../../animations/RequestParticle';
-import { UserGroup } from '../../animations/UserGroup';
+import { WorkloadPanel } from '../../animations/WorkloadPanel';
 import { scaleIn } from '../../animations/variants';
 
 export function QuantizedModel() {
@@ -19,8 +19,13 @@ export function QuantizedModel() {
       </defs>
       <rect x="0" y="0" width="600" height="340" fill="url(#glow2)" />
 
-      {/* User icons — same users, faster serving */}
-      <UserGroup x={8} y={80} count={10} columns={3} label="Users" iconSize={12} />
+      {/* Workload: growing RAG adoption */}
+      <WorkloadPanel
+        x={4} y={70}
+        users={10} agents={0}
+        labels={[{ text: 'RAG Chatbot', color: '#22d3ee' }]}
+        columns={3} iconSize={11}
+      />
 
       {/* Faster particles */}
       <RequestParticle startX={80} startY={140} endX={195} endY={140} delay={0} duration={1.0} />

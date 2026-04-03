@@ -19,6 +19,7 @@ export interface StageDefinition {
   slug: string;
   title: string;
   subtitle: string;
+  story: string;
   category: 'vertical' | 'horizontal';
   description: string;
   bullets: string[];

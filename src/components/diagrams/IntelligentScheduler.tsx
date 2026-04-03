@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { motion } from 'framer-motion';
 import { RequestParticle } from '../../animations/RequestParticle';
-import { UserGroup } from '../../animations/UserGroup';
+import { WorkloadPanel } from '../../animations/WorkloadPanel';
 import { scaleIn } from '../../animations/variants';
 
 function jitter(base: number, range: number) {
@@ -52,8 +52,18 @@ export function IntelligentScheduler() {
       </defs>
       <rect x="0" y="0" width="620" height="380" fill="url(#glow6)" />
 
-      {/* User icons */}
-      <UserGroup x={2} y={55} count={30} columns={3} label="Users" color="#a78bfa" iconSize={10} />
+      {/* Same workloads, smarter routing */}
+      <WorkloadPanel
+        x={2} y={35}
+        users={16} agents={8}
+        labels={[
+          { text: 'RAG Chatbot', color: '#a78bfa' },
+          { text: 'Coding Assist', color: '#fbbf24' },
+          { text: 'Summarization', color: '#22d3ee' },
+        ]}
+        userColor="#a78bfa" agentColor="#fbbf24"
+        columns={3} iconSize={9}
+      />
       {[0, 1, 2].map((i) => (
         <RequestParticle
           key={i}

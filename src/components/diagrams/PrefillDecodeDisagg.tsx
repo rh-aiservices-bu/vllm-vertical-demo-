@@ -1,6 +1,6 @@
 import { motion } from 'framer-motion';
 import { RequestParticle } from '../../animations/RequestParticle';
-import { UserGroup } from '../../animations/UserGroup';
+import { WorkloadPanel } from '../../animations/WorkloadPanel';
 import { scaleIn } from '../../animations/variants';
 
 export function PrefillDecodeDisagg() {
@@ -23,8 +23,19 @@ export function PrefillDecodeDisagg() {
       </defs>
       <rect x="0" y="0" width="700" height="400" fill="url(#glow7)" />
 
-      {/* User icons — massive scale */}
-      <UserGroup x={2} y={30} count={48} columns={4} label="Users" color="#a78bfa" iconSize={9} />
+      {/* Massive heterogeneous workloads */}
+      <WorkloadPanel
+        x={2} y={15}
+        users={20} agents={16}
+        labels={[
+          { text: 'RAG Chatbot', color: '#a78bfa' },
+          { text: 'Coding Assist', color: '#fbbf24' },
+          { text: 'Summarization', color: '#22d3ee' },
+          { text: 'Agentic Workflows', color: '#34d399' },
+        ]}
+        userColor="#a78bfa" agentColor="#fbbf24"
+        columns={4} iconSize={8}
+      />
       {[0, 1, 2, 3].map(i => (
         <RequestParticle key={i} startX={50} startY={185 + i * 10} endX={90} endY={200} delay={i * 0.3} duration={0.5} />
       ))}

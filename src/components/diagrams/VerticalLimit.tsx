@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion';
-import { UserGroup } from '../../animations/UserGroup';
+import { WorkloadPanel } from '../../animations/WorkloadPanel';
 import { scaleIn } from '../../animations/variants';
 
 export function VerticalLimit() {
@@ -18,8 +18,17 @@ export function VerticalLimit() {
       </defs>
       <rect x="0" y="0" width="600" height="340" fill="url(#glow4)" />
 
-      {/* Too many users piling up */}
-      <UserGroup x={5} y={45} count={20} columns={4} label="Users" color="#fb7185" iconSize={11} />
+      {/* Business demands outgrow single instance */}
+      <WorkloadPanel
+        x={2} y={30}
+        users={12} agents={6}
+        labels={[
+          { text: 'RAG Chatbot', color: '#fb7185' },
+          { text: 'Coding Assist', color: '#fbbf24' },
+        ]}
+        userColor="#fb7185" agentColor="#fbbf24"
+        columns={4} iconSize={10}
+      />
       <motion.text
         x="38" y="218"
         textAnchor="middle"

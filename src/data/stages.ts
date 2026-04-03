@@ -6,6 +6,7 @@ export const stages: StageDefinition[] = [
     slug: 'single-vllm',
     title: 'Single vLLM Instance',
     subtitle: 'KV Cache & Continuous Batching',
+    story: 'A small team deploys a RAG chatbot for internal knowledge search',
     category: 'vertical',
     description:
       'A single vLLM replica serving gpt-oss-20b. vLLM leverages PagedAttention for efficient KV cache management and continuous batching to maximize GPU utilization by serving multiple users simultaneously.',
@@ -36,6 +37,7 @@ export const stages: StageDefinition[] = [
     slug: 'quantized',
     title: 'Quantized Model (INT8)',
     subtitle: 'Smaller Footprint, Higher Throughput',
+    story: 'RAG chatbot gains traction — more teams onboard, user base grows',
     category: 'vertical',
     description:
       'The same gpt-oss-20b model quantized to INT8. Quantization reduces memory footprint and increases compute throughput with less than 1% change in output quality, enabling significantly faster inference.',
@@ -67,6 +69,7 @@ export const stages: StageDefinition[] = [
     slug: 'speculative-decoding',
     title: 'Speculative Decoding',
     subtitle: 'Draft Model Acceleration',
+    story: 'Users expect real-time responses — every millisecond of latency matters',
     category: 'vertical',
     description:
       'A lightweight draft model generates candidate tokens that the main model verifies in parallel. This dramatically reduces inter-token latency since verification of multiple tokens costs roughly the same as generating one.',
@@ -98,6 +101,7 @@ export const stages: StageDefinition[] = [
     slug: 'vertical-limit',
     title: 'Vertical Scaling Limits',
     subtitle: 'Single Instance Under Heavy Load',
+    story: 'Engineering adds a coding assistant — two LOBs now compete for the same GPU',
     category: 'vertical',
     description:
       'Even with all optimizations applied, a single vLLM instance hits a hard ceiling as users increase. KV cache saturates, queuing delays explode, and tail latencies become unacceptable for real-time applications.',
@@ -128,6 +132,7 @@ export const stages: StageDefinition[] = [
     slug: 'horizontal-scaling',
     title: 'Horizontal Scaling (4 Replicas)',
     subtitle: 'Load Balancing with Round-Robin',
+    story: 'A third LOB adds document summarization — platform team scales out to 4 replicas',
     category: 'horizontal',
     description:
       'Scaling out to 4 vLLM replicas behind a standard load balancer. User capacity scales nearly linearly, but naive round-robin routing sends users to replicas without considering their KV cache state, causing cold-cache penalties on TTFT.',
@@ -159,6 +164,7 @@ export const stages: StageDefinition[] = [
     slug: 'llmd-scheduler',
     title: 'LLM-D Intelligent Scheduling',
     subtitle: 'KV Cache-Aware Routing',
+    story: 'Users complain about intermittent slowness — tail latency is the culprit',
     category: 'horizontal',
     description:
       'LLM-D replaces the naive load balancer with an intelligent inference scheduler that scores each replica based on prefix cache state, queue depth, and active users. Users are routed to the replica most likely to have relevant KV cache, collapsing tail latency.',
@@ -191,6 +197,7 @@ export const stages: StageDefinition[] = [
     slug: 'prefill-decode-disagg',
     title: 'Prefill / Decode Disaggregation',
     subtitle: 'Multi-Node Heterogeneous Scaling',
+    story: 'Agentic workflows launch — long prompts and fast chat coexist across the platform',
     category: 'horizontal',
     description:
       'LLM-D disaggregates the inference pipeline into dedicated prefill and decode phases across separate node pools. Prefill nodes optimize for throughput-heavy prompt processing while decode nodes optimize for latency-sensitive token generation, enabling massive heterogeneous workload support.',

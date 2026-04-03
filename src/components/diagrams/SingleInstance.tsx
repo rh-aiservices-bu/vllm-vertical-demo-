@@ -1,6 +1,6 @@
 import { motion } from 'framer-motion';
 import { RequestParticle } from '../../animations/RequestParticle';
-import { UserGroup } from '../../animations/UserGroup';
+import { WorkloadPanel } from '../../animations/WorkloadPanel';
 import { scaleIn } from '../../animations/variants';
 
 export function SingleInstance() {
@@ -24,8 +24,13 @@ export function SingleInstance() {
 
       <rect x="0" y="0" width="600" height="340" fill="url(#glow1)" />
 
-      {/* User icons */}
-      <UserGroup x={8} y={90} count={6} columns={3} label="Users" iconSize={12} />
+      {/* Workload: small team using RAG */}
+      <WorkloadPanel
+        x={4} y={80}
+        users={6} agents={0}
+        labels={[{ text: 'RAG Chatbot', color: '#22d3ee' }]}
+        columns={3} iconSize={11}
+      />
 
       {/* Particles from users to vLLM */}
       <RequestParticle startX={80} startY={140} endX={195} endY={140} delay={0} duration={1.5} />
