@@ -8,7 +8,7 @@ import { MetricsPanel } from './components/MetricsPanel';
 import { ExplanationPanel } from './components/ExplanationPanel';
 
 function App() {
-  const { currentStage, direction, goToStage, nextStage, prevStage, totalStages } =
+  const { currentStage, direction, goToStage, nextStage, prevStage, totalStages, autoplay, toggleAutoplay, intervalSec, setIntervalSec } =
     useStageNavigation();
   const stage = useMemo(() => stages.find((s) => s.id === currentStage)!, [currentStage]);
   const isHorizontal = stage.category === 'horizontal';
@@ -26,12 +26,45 @@ function App() {
               </span>
             </h1>
           </div>
-          <div className="flex items-center gap-3 text-xs text-slate-500">
-            <kbd className="px-1.5 py-0.5 bg-slate-800 rounded border border-slate-700">←</kbd>
-            <kbd className="px-1.5 py-0.5 bg-slate-800 rounded border border-slate-700">→</kbd>
-            <span>Navigate</span>
-            <kbd className="px-1.5 py-0.5 bg-slate-800 rounded border border-slate-700">1-7</kbd>
-            <span>Jump</span>
+          <div className="flex items-center gap-4 text-xs text-slate-500">
+            <div className="flex items-center gap-2">
+              <button
+                onClick={toggleAutoplay}
+                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-all cursor-pointer ${
+                  autoplay
+                    ? 'bg-emerald-500/15 text-emerald-400 border border-emerald-500/30'
+                    : 'bg-slate-800 text-slate-400 border border-slate-700 hover:border-slate-500'
+                }`}
+              >
+                {autoplay ? (
+                  <>
+                    <svg width="10" height="10" viewBox="0 0 10 10" fill="currentColor"><rect x="1" y="1" width="3" height="8" rx="0.5" /><rect x="6" y="1" width="3" height="8" rx="0.5" /></svg>
+                    Autoplay
+                  </>
+                ) : (
+                  <>
+                    <svg width="10" height="10" viewBox="0 0 10 10" fill="currentColor"><polygon points="2,1 9,5 2,9" /></svg>
+                    Autoplay
+                  </>
+                )}
+              </button>
+              {autoplay && (
+                <select
+                  value={intervalSec}
+                  onChange={(e) => setIntervalSec(Number(e.target.value))}
+                  className="bg-slate-800 text-slate-300 text-xs border border-slate-700 rounded-lg px-2 py-1.5 cursor-pointer focus:outline-none focus:border-emerald-500/50"
+                >
+                  {[10, 15, 20, 30, 45, 60].map((s) => (
+                    <option key={s} value={s}>{s}s</option>
+                  ))}
+                </select>
+              )}
+            </div>
+            <div className="flex items-center gap-2">
+              <kbd className="px-1.5 py-0.5 bg-slate-800 rounded border border-slate-700">←</kbd>
+              <kbd className="px-1.5 py-0.5 bg-slate-800 rounded border border-slate-700">→</kbd>
+              <span>Navigate</span>
+            </div>
           </div>
         </div>
       </header>
