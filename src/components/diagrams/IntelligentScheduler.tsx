@@ -76,14 +76,14 @@ export function IntelligentScheduler() {
         />
       ))}
 
-      {/* LLM-D Inference Scheduler */}
+      {/* llm-d Inference Scheduler */}
       <motion.g variants={scaleIn}>
         <rect
           x="105" y="60" width="200" height="260" rx="12"
           fill="#0f172a" stroke="#8b5cf6" strokeWidth="2"
         />
         <text x="205" y="86" textAnchor="middle" fill="#8b5cf6" fontSize="13" fontWeight="700">
-          LLM-D Scheduler
+          llm-d Scheduler
         </text>
         <text x="205" y="102" textAnchor="middle" fill="#a78bfa" fontSize="9">
           Intelligent Inference Routing

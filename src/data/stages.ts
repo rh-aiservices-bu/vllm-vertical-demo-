@@ -162,12 +162,12 @@ export const stages: StageDefinition[] = [
   {
     id: 6,
     slug: 'llmd-scheduler',
-    title: 'LLM-D Intelligent Scheduling',
+    title: 'llm-d Intelligent Scheduling',
     subtitle: 'KV Cache-Aware Routing',
     story: 'Users complain about intermittent slowness — tail latency is the culprit',
     category: 'horizontal',
     description:
-      'LLM-D replaces the naive load balancer with an intelligent inference scheduler that scores each replica based on prefix cache state, queue depth, and active users. Users are routed to the replica most likely to have relevant KV cache, collapsing tail latency.',
+      'llm-d replaces the naive load balancer with an intelligent inference scheduler that scores each replica based on prefix cache state, queue depth, and active users. Users are routed to the replica most likely to have relevant KV cache, collapsing tail latency.',
     bullets: [
       'Prefix-cache-scorer (weight 3): routes to warm KV cache replicas',
       'Queue-scorer (weight 2): avoids overloaded replicas',
@@ -200,7 +200,7 @@ export const stages: StageDefinition[] = [
     story: 'Agentic workflows launch — long prompts and fast chat coexist across the platform',
     category: 'horizontal',
     description:
-      'LLM-D disaggregates the inference pipeline into dedicated prefill and decode phases across separate node pools. Prefill nodes optimize for throughput-heavy prompt processing while decode nodes optimize for latency-sensitive token generation, enabling massive heterogeneous workload support.',
+      'llm-d disaggregates the inference pipeline into dedicated prefill and decode phases across separate node pools. Prefill nodes optimize for throughput-heavy prompt processing while decode nodes optimize for latency-sensitive token generation, enabling massive heterogeneous workload support.',
     bullets: [
       'Dedicated prefill nodes: optimized for high-throughput prompt processing',
       'Dedicated decode nodes: optimized for low-latency token generation',

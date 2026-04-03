@@ -5,15 +5,15 @@ import { scaleIn } from '../../animations/variants';
 
 export function HorizontalScaling() {
   const replicas = [
-    { x: 340, y: 50, label: 'Replica 1', cacheHit: true },
-    { x: 340, y: 130, label: 'Replica 2', cacheHit: false },
-    { x: 340, y: 210, label: 'Replica 3', cacheHit: true },
-    { x: 340, y: 290, label: 'Replica 4', cacheHit: false },
+    { x: 360, y: 30, label: 'Replica 1', cacheHit: true },
+    { x: 360, y: 110, label: 'Replica 2', cacheHit: false },
+    { x: 360, y: 190, label: 'Replica 3', cacheHit: true },
+    { x: 360, y: 270, label: 'Replica 4', cacheHit: false },
   ];
 
   return (
     <motion.svg
-      viewBox="0 0 600 380"
+      viewBox="0 0 620 390"
       className="w-full h-full"
       initial="hidden"
       animate="visible"
@@ -24,11 +24,11 @@ export function HorizontalScaling() {
           <stop offset="100%" stopColor="#a78bfa" stopOpacity="0" />
         </radialGradient>
       </defs>
-      <rect x="0" y="0" width="600" height="380" fill="url(#glow5)" />
+      <rect x="0" y="0" width="620" height="390" fill="url(#glow5)" />
 
       {/* Multiple LOB workloads at scale */}
       <WorkloadPanel
-        x={2} y={40}
+        x={5} y={20}
         users={16} agents={8}
         labels={[
           { text: 'RAG Chatbot', color: '#a78bfa' },
@@ -38,32 +38,34 @@ export function HorizontalScaling() {
         userColor="#a78bfa" agentColor="#fbbf24"
         columns={4} iconSize={9}
       />
+
+      {/* Particles from workload to LB */}
       {[0, 1, 2, 3].map((i) => (
         <RequestParticle
           key={i}
-          startX={70}
-          startY={175 + i * 15}
-          endX={140}
-          endY={190}
+          startX={120}
+          startY={140 + i * 12}
+          endX={165}
+          endY={170}
           delay={i * 0.4}
-          duration={0.8}
+          duration={0.6}
         />
       ))}
 
       {/* Load Balancer */}
       <motion.g variants={scaleIn}>
         <rect
-          x="145" y="145" width="120" height="90" rx="10"
+          x="170" y="125" width="120" height="90" rx="10"
           fill="#0f172a" stroke="#94a3b8" strokeWidth="2"
         />
-        <text x="205" y="175" textAnchor="middle" fill="#94a3b8" fontSize="12" fontWeight="600">
+        <text x="230" y="155" textAnchor="middle" fill="#94a3b8" fontSize="12" fontWeight="600">
           Load Balancer
         </text>
-        <text x="205" y="192" textAnchor="middle" fill="#64748b" fontSize="9">
+        <text x="230" y="172" textAnchor="middle" fill="#64748b" fontSize="9">
           Round-Robin
         </text>
         <motion.text
-          x="205" y="225"
+          x="230" y="205"
           textAnchor="middle"
           fill="#fbbf24"
           fontSize="9"
@@ -78,7 +80,7 @@ export function HorizontalScaling() {
       {replicas.map((r, i) => (
         <motion.line
           key={`line${i}`}
-          x1="265" y1="190"
+          x1="290" y1="170"
           x2={r.x} y2={r.y + 30}
           stroke="#475569" strokeWidth="1" strokeDasharray="4 2"
           animate={{ strokeDashoffset: [8, 0] }}
@@ -90,8 +92,8 @@ export function HorizontalScaling() {
       {replicas.map((r, i) => (
         <RequestParticle
           key={`p${i}`}
-          startX={265}
-          startY={190}
+          startX={290}
+          startY={170}
           endX={r.x}
           endY={r.y + 30}
           delay={i * 0.8}
@@ -155,7 +157,7 @@ export function HorizontalScaling() {
           key={`resp${i}`}
           startX={r.x + 200}
           startY={r.y + 30}
-          endX={590}
+          endX={610}
           endY={r.y + 30}
           delay={i * 0.8 + 1.2}
           duration={0.6}
@@ -166,8 +168,8 @@ export function HorizontalScaling() {
 
       {/* Summary callout */}
       <motion.g variants={scaleIn}>
-        <rect x="145" y="340" width="310" height="30" rx="6" fill="#1e293b" stroke="#fbbf24" strokeWidth="1" />
-        <text x="300" y="360" textAnchor="middle" fill="#fbbf24" fontSize="10">
+        <rect x="170" y="350" width="390" height="30" rx="6" fill="#1e293b" stroke="#fbbf24" strokeWidth="1" />
+        <text x="365" y="370" textAnchor="middle" fill="#fbbf24" fontSize="10">
           p99 TTFT: 650ms — Some users hit cold caches, causing tail latency spikes
         </text>
       </motion.g>

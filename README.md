@@ -1,6 +1,6 @@
-# vLLM to LLM-D: Vertical to Horizontal Scaling Demo
+# vLLM to llm-d: Vertical to Horizontal Scaling Demo
 
-An interactive, animated demo that walks through the journey of scaling LLM inference from a single vLLM instance to a fully disaggregated LLM-D deployment.
+An interactive, animated demo that walks through the journey of scaling LLM inference from a single vLLM instance to a fully disaggregated llm-d deployment.
 
 ## Stages
 
@@ -16,7 +16,7 @@ The demo progresses through 7 stages, each with animated architecture diagrams, 
 **Horizontal Scaling (Stages 5-7)**
 
 5. **Horizontal Scaling (4 Replicas)** - Scale-out behind a load balancer, but round-robin routing causes cold-cache misses
-6. **LLM-D Intelligent Scheduling** - KV cache-aware routing collapses tail latency with prefix-cache, queue, and active-request scorers
+6. **llm-d Intelligent Scheduling** - KV cache-aware routing collapses tail latency with prefix-cache, queue, and active-request scorers
 7. **Prefill / Decode Disaggregation** - Dedicated prefill and decode node pools for massive heterogeneous workload support
 
 ## Running

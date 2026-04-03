@@ -23,7 +23,7 @@ function App() {
         <div className="max-w-7xl mx-auto flex items-center justify-between">
           <div>
             <h1 className={`text-xl font-bold ${d ? 'text-slate-100' : 'text-slate-900'}`}>
-              vLLM → LLM-D
+              vLLM → llm-d
               <span className={`text-sm font-normal ml-3 ${d ? 'text-slate-400' : 'text-slate-500'}`}>
                 Vertical to Horizontal Scaling
               </span>
@@ -173,7 +173,7 @@ function App() {
           <div className={`text-xs ${d ? 'text-slate-500' : 'text-slate-400'}`}>
             {currentStage < 5
               ? 'Vertical Scaling Optimizations'
-              : 'Horizontal Scaling with LLM-D'}
+              : 'Horizontal Scaling with llm-d'}
           </div>
           <button
             onClick={nextStage}

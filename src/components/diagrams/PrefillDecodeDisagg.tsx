@@ -6,7 +6,7 @@ import { scaleIn } from '../../animations/variants';
 export function PrefillDecodeDisagg() {
   return (
     <motion.svg
-      viewBox="0 0 700 400"
+      viewBox="0 0 700 430"
       className="w-full h-full"
       initial="hidden"
       animate="visible"
@@ -21,7 +21,7 @@ export function PrefillDecodeDisagg() {
           <stop offset="100%" stopColor="#8b5cf6" />
         </linearGradient>
       </defs>
-      <rect x="0" y="0" width="700" height="400" fill="url(#glow7)" />
+      <rect x="0" y="0" width="700" height="430" fill="url(#glow7)" />
 
       {/* Massive heterogeneous workloads */}
       <WorkloadPanel
@@ -40,10 +40,10 @@ export function PrefillDecodeDisagg() {
         <RequestParticle key={i} startX={50} startY={185 + i * 10} endX={90} endY={200} delay={i * 0.3} duration={0.5} />
       ))}
 
-      {/* LLM-D Scheduler (center-left) */}
+      {/* llm-d Scheduler (center-left) */}
       <motion.g variants={scaleIn}>
         <rect x="95" y="120" width="100" height="160" rx="10" fill="#0f172a" stroke="#8b5cf6" strokeWidth="2" />
-        <text x="145" y="148" textAnchor="middle" fill="#8b5cf6" fontSize="11" fontWeight="700">LLM-D</text>
+        <text x="145" y="148" textAnchor="middle" fill="#8b5cf6" fontSize="11" fontWeight="700">llm-d</text>
         <text x="145" y="163" textAnchor="middle" fill="#a78bfa" fontSize="8">Scheduler</text>
         <motion.text
           x="145" y="185"
@@ -202,9 +202,9 @@ export function PrefillDecodeDisagg() {
 
       {/* Summary */}
       <motion.g variants={scaleIn}>
-        <rect x="95" y="370" width="510" height="26" rx="6" fill="#1e293b" stroke="#34d399" strokeWidth="1" />
-        <text x="350" y="388" textAnchor="middle" fill="#34d399" fontSize="10" fontWeight="500">
-          200 users/s | TTFT p99: 210ms | Independent scaling per phase | Production-ready heterogeneous workloads
+        <rect x="65" y="392" width="570" height="26" rx="6" fill="#1e293b" stroke="#34d399" strokeWidth="1" />
+        <text x="350" y="410" textAnchor="middle" fill="#34d399" fontSize="10" fontWeight="500">
+          200 users/s | TTFT p99: 210ms | Independent scaling per phase | Production-ready workloads
         </text>
       </motion.g>
     </motion.svg>
