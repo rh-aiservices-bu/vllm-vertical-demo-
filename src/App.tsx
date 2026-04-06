@@ -100,11 +100,6 @@ function App() {
               )}
               {d ? 'Light' : 'Dark'}
             </button>
-            <div className="flex items-center gap-2">
-              <kbd className={`px-1.5 py-0.5 rounded border ${d ? 'bg-slate-800 border-slate-700' : 'bg-slate-100 border-slate-300 text-slate-500'}`}>←</kbd>
-              <kbd className={`px-1.5 py-0.5 rounded border ${d ? 'bg-slate-800 border-slate-700' : 'bg-slate-100 border-slate-300 text-slate-500'}`}>→</kbd>
-              <span>Navigate</span>
-            </div>
           </div>
         </div>
       </header>

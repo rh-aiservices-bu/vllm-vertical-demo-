@@ -9,7 +9,7 @@ interface Props {
 
 export function ImageSlide({ src, title, subtitle, darkMode: d }: Props) {
   return (
-    <div className="flex flex-col items-center gap-6 py-8">
+    <div className="flex flex-col items-center gap-4 py-2">
       <div className="text-center">
         <h2 className={`text-2xl font-bold ${d ? 'text-slate-100' : 'text-slate-900'}`}>{title}</h2>
         <p className={`text-sm mt-1 ${d ? 'text-slate-400' : 'text-slate-500'}`}>{subtitle}</p>
