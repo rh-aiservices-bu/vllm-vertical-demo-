@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { useStageNavigation } from './hooks/useStageNavigation';
 import { stages } from './data/stages';
@@ -7,11 +7,11 @@ import { ArchitectureDiagram } from './components/ArchitectureDiagram';
 import { MetricsPanel } from './components/MetricsPanel';
 import { ExplanationPanel } from './components/ExplanationPanel';
 import { ImageSlide } from './components/ImageSlide';
+import { AnimatedStackSlide } from './components/AnimatedStackSlide';
 
 const BASE = import.meta.env.BASE_URL;
 
 const imageSlides = [
-  { page: 0, src: `${BASE}enterprise-genai.png`, title: 'Enterprise GenAI Inference', subtitle: 'Optimize, operationalize and scale AI across the hybrid cloud' },
   { page: 8, src: `${BASE}maas.png`, title: 'Model as a Service', subtitle: 'Control access and consumption to both self-hosted and proprietary models' },
   { page: 9, src: `${BASE}model-catalog.png`, title: 'Model Catalog', subtitle: 'Validated models with performance and compatibility verified by Red Hat' },
 ];
@@ -26,7 +26,22 @@ function App() {
   );
   const isHorizontal = stage?.category === 'horizontal';
   const [darkMode, setDarkMode] = useState(false);
+  const [isFullscreen, setIsFullscreen] = useState(false);
   const d = darkMode;
+
+  const toggleFullscreen = useCallback(() => {
+    if (!document.fullscreenElement) {
+      document.documentElement.requestFullscreen();
+    } else {
+      document.exitFullscreen();
+    }
+  }, []);
+
+  useEffect(() => {
+    const handler = () => setIsFullscreen(!!document.fullscreenElement);
+    document.addEventListener('fullscreenchange', handler);
+    return () => document.removeEventListener('fullscreenchange', handler);
+  }, []);
 
   const imageSlide = imageSlides.find(s => s.page === currentPage);
   const isImagePage = !!imageSlide;
@@ -100,6 +115,21 @@ function App() {
               )}
               {d ? 'Light' : 'Dark'}
             </button>
+            <button
+              onClick={toggleFullscreen}
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-all cursor-pointer ${
+                d
+                  ? 'bg-slate-800 text-slate-400 border border-slate-700 hover:border-slate-500'
+                  : 'bg-slate-100 text-slate-600 border border-slate-300 hover:border-slate-400'
+              }`}
+            >
+              {isFullscreen ? (
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="4 14 4 20 10 20"/><polyline points="20 10 20 4 14 4"/><line x1="14" y1="10" x2="21" y2="3"/><line x1="3" y1="21" x2="10" y2="14"/></svg>
+              ) : (
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/><line x1="21" y1="3" x2="14" y2="10"/><line x1="3" y1="21" x2="10" y2="14"/></svg>
+              )}
+              {isFullscreen ? 'Exit' : 'Fullscreen'}
+            </button>
           </div>
         </div>
       </header>
@@ -120,7 +150,12 @@ function App() {
             exit={{ opacity: 0 }}
             transition={{ duration: 0.25 }}
           >
-            {/* Image slides (intro + outro) */}
+            {/* Animated stack diagram (page 0) */}
+            {currentPage === 0 && (
+              <AnimatedStackSlide darkMode={d} />
+            )}
+
+            {/* Image slides (outro pages) */}
             {isImagePage && (
               <ImageSlide
                 src={imageSlide.src}
