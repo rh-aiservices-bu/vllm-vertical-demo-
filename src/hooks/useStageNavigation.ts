@@ -1,7 +1,7 @@
 import { useState, useCallback, useEffect, useRef } from 'react';
 
 const DEFAULT_INTERVAL = 20;
-const TOTAL_PAGES = 10; // 0=intro, 1-7=stages, 8=maas, 9=model-catalog
+const TOTAL_PAGES = 9; // 0=intro, 1-7=stages, 8=model-catalog
 
 export function useStageNavigation() {
   const getInitialPage = () => {

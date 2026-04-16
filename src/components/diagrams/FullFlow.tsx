@@ -8,40 +8,67 @@ const scaleIn = {
 
 export const userApps = ['RAG App', 'Chatbot', 'Code Assist', 'Batch Job', 'Agent'];
 
-// Reordered: Access Control first, then Rate Limiting, then Throttling
 export const maasPolicies = [
   { label: 'Access Control', color: '#34d399', icon: '🔒' },
   { label: 'Rate Limiting', color: '#f87171', icon: '⏱' },
   { label: 'Throttling', color: '#fbbf24', icon: '⚡' },
 ];
 
-export const llmdInstances = [
+export type BackendType = 'llmd' | 'vllm' | 'external';
+
+export interface ExternalModel {
+  model: string;
+  provider: string;
+  color: string;
+}
+
+export interface Backend {
+  type: BackendType;
+  model: string;
+  color: string;
+  plugins?: string[];
+  vllmPods?: number;
+  hw?: { label: string; color: string };
+  activeFeatures?: number[];
+  externalModels?: ExternalModel[];
+}
+
+export const backends: Backend[] = [
   {
+    type: 'llmd',
     model: 'Llama-3-70B',
     color: '#a78bfa',
     plugins: ['profile-handler', 'kv-cache-scorer', 'prefix-cache-scorer'],
     vllmPods: 2,
     hw: { label: 'NVIDIA', color: '#76b900' },
-    // Speculative decoding + continuous batching + KV cache
     activeFeatures: [0, 2, 3],
   },
   {
+    type: 'llmd',
     model: 'Granite-20B-INT8',
     color: '#60a5fa',
     plugins: ['profile-handler', 'queue-scorer', 'kv-cache-scorer'],
     vllmPods: 2,
     hw: { label: 'AMD', color: '#ed1c24' },
-    // Quantized model: INT8 quantization + continuous batching + KV cache
     activeFeatures: [1, 2, 3],
   },
   {
+    type: 'vllm',
     model: 'Mistral-7B',
     color: '#f472b6',
-    plugins: ['profile-handler', 'queue-scorer', 'prefix-cache-scorer'],
-    vllmPods: 3,
+    vllmPods: 1,
     hw: { label: 'Intel', color: '#0071c5' },
-    // Continuous batching + KV cache
     activeFeatures: [2, 3],
+  },
+  {
+    type: 'external',
+    model: 'External Models',
+    color: '#fb923c',
+    externalModels: [
+      { model: 'Claude Sonnet', provider: 'Anthropic', color: '#fb923c' },
+      { model: 'ChatGPT', provider: 'OpenAI', color: '#34d399' },
+      { model: 'Gemini Pro', provider: 'Google', color: '#60a5fa' },
+    ],
   },
 ];
 
@@ -54,14 +81,17 @@ export const vllmFeatures = [
 
 export const requests = [
   { user: 0, instance: 0, pod: 0, modelLabel: 'model: Llama-3-70B' },
-  { user: 1, instance: 2, pod: 2, modelLabel: 'model: Mistral-7B' },
+  { user: 1, instance: 2, pod: 0, modelLabel: 'model: Mistral-7B' },
   { user: 2, instance: 1, pod: 1, modelLabel: 'model: Granite-20B-INT8' },
-  { user: 3, instance: 0, pod: 1, modelLabel: 'model: Llama-3-70B' },
-  { user: 4, instance: 2, pod: 0, modelLabel: 'model: Mistral-7B' },
+  { user: 3, instance: 3, pod: 0, modelLabel: 'model: Claude Sonnet' },
+  { user: 4, instance: 0, pod: 1, modelLabel: 'model: Llama-3-70B' },
+  { user: 1, instance: 3, pod: 1, modelLabel: 'model: ChatGPT' },
+  { user: 0, instance: 2, pod: 0, modelLabel: 'model: Mistral-7B' },
+  { user: 2, instance: 3, pod: 2, modelLabel: 'model: Gemini Pro' },
 ];
 
 // Steps: 0=idle, 1=user, 2=maas-enter, 3=maas-policies (fast cycle),
-//        4=route-to-instance, 5=scheduler-plugins (fast cycle), 6=select-vllm-pod
+//        4=route-to-instance, 5=scheduler-plugins (llmd only), 6=select-vllm-pod / external call
 export const TOTAL_STEPS = 7;
 
 interface Props {
@@ -80,6 +110,8 @@ const lightColorMap: Record<string, string> = {
   '#fbbf24': '#a16207', // amber-400 → amber-700
   '#f87171': '#b91c1c', // red-400 → red-700
   '#ef4444': '#b91c1c', // red-500 → red-700
+  '#fb923c': '#c2410c', // orange-400 → orange-700
+  '#10b981': '#047857', // emerald-500 → emerald-700
   '#76b900': '#4d7a00', // nvidia green → darker
   '#ed1c24': '#b91c1c', // amd red → darker
   '#0071c5': '#004a82', // intel blue → darker
@@ -104,6 +136,8 @@ export function FullFlow({ step, req, dark }: Props) {
   const isActive = (s: number) => step === s;
   const isActiveOrPast = (s: number) => step >= s;
 
+  const targetBackend = backends[req.instance];
+
   // Cycle through MaaS policies once during step 3, then hold on the last
   const [policySubStep, setPolicySubStep] = useState(0);
   useEffect(() => {
@@ -114,21 +148,21 @@ export function FullFlow({ step, req, dark }: Props) {
     return () => clearInterval(t);
   }, [step]);
 
-  // Rapidly cycle through plugins during step 5
+  // Rapidly cycle through plugins during step 5 (llmd only)
   const [pluginSubStep, setPluginSubStep] = useState(0);
-  const maxPlugins = llmdInstances[req.instance].plugins.length;
+  const maxPlugins = targetBackend.plugins?.length ?? 0;
   useEffect(() => {
-    if (step !== 5) { setPluginSubStep(0); return; }
+    if (step !== 5 || maxPlugins === 0) { setPluginSubStep(0); return; }
     const t = setInterval(() => {
       setPluginSubStep(prev => (prev + 1) % maxPlugins);
     }, 300);
     return () => clearInterval(t);
   }, [step, maxPlugins]);
 
-  // Column layout
-  const colW = 220;
-  const colGap = 10;
-  const totalW = llmdInstances.length * colW + (llmdInstances.length - 1) * colGap;
+  // Column layout — 4 columns
+  const colW = 168;
+  const colGap = 8;
+  const totalW = backends.length * colW + (backends.length - 1) * colGap;
   const colStartX = (740 - totalW) / 2;
 
   // llm-d box sizing
@@ -149,6 +183,15 @@ export function FullFlow({ step, req, dark }: Props) {
   const groupY = llmdY - groupPad;
   const hwLabelH = 22;
   const groupH = llmdBoxH + 8 + podInnerH + 6 + hwLabelH + groupPad * 2;
+
+  // Standalone vLLM box — fills the combined llmd + pods area
+  const vllmStandaloneH = llmdBoxH + 8 + podInnerH;
+
+  // External model boxes — stacked vertically in the group area
+  const extHeaderH = 20;
+  const extCount = backends.find(b => b.type === 'external')?.externalModels?.length ?? 1;
+  const extGap = 6;
+  const extBoxH = (vllmStandaloneH - extHeaderH - (extCount - 1) * extGap) / extCount;
 
   // MaaS box sizing — vertical stack
   const maasBoxW = 200;
@@ -245,8 +288,8 @@ export function FullFlow({ step, req, dark }: Props) {
         );
       })()}
 
-      {/* === DOTTED GROUP OUTLINES (llm-d + vLLM pods + hw vendor) === */}
-      {llmdInstances.map((instance, ii) => {
+      {/* === DOTTED GROUP OUTLINES === */}
+      {backends.map((backend, ii) => {
         const x = colStartX + ii * (colW + colGap);
         const isTarget = req.instance === ii;
         const groupActive = isTarget && isActiveOrPast(4) && step <= 6;
@@ -256,16 +299,17 @@ export function FullFlow({ step, req, dark }: Props) {
             x={x - groupPad} y={groupY}
             width={colW + groupPad * 2} height={groupH}
             rx="12" fill="none"
-            stroke={c(instance.color, dark)}
-            strokeDasharray="6 3"
+            stroke={c(backend.color, dark)}
+            strokeDasharray={backend.type === 'external' ? '4 4' : '6 3'}
             animate={{ strokeOpacity: groupActive ? 0.5 : 0.15 }}
             transition={{ duration: 0.3 }}
           />
         );
       })}
 
-      {/* === LLM-D INSTANCES === */}
-      {llmdInstances.map((instance, ii) => {
+      {/* === LLM-D INSTANCES (type: llmd) === */}
+      {backends.map((backend, ii) => {
+        if (backend.type !== 'llmd') return null;
         const x = colStartX + ii * (colW + colGap);
         const isTarget = req.instance === ii;
         const instanceActive = isTarget && isActiveOrPast(4) && step <= 6;
@@ -275,39 +319,39 @@ export function FullFlow({ step, req, dark }: Props) {
           <motion.g key={`llmd-${ii}`} variants={scaleIn}>
             <motion.rect
               x={x} y={llmdY} width={colW} height={llmdBoxH} rx="10"
-              fill={boxBg} stroke={c(instance.color, dark)}
+              fill={boxBg} stroke={c(backend.color, dark)}
               animate={{ strokeWidth: instanceActive ? 2.5 : 1.5, strokeOpacity: instanceActive ? 1 : 0.35 }}
               transition={{ duration: 0.3 }}
             />
             <motion.rect
               x={x} y={llmdY} width={colW} height={llmdBoxH} rx="10"
-              fill={c(instance.color, dark)}
+              fill={c(backend.color, dark)}
               animate={{ fillOpacity: instanceActive ? 0.08 : 0 }}
               transition={{ duration: 0.3 }}
             />
-            <rect x={x} y={llmdY} width={colW} height="24" rx="10" fill={c(instance.color, dark)} fillOpacity={instanceActive ? 0.2 : 0.1} />
-            <text x={x + colW / 2} y={llmdY + 16} textAnchor="middle" fill={c(instance.color, dark)} fontSize="10" fontWeight="700">
-              llm-d — {instance.model}
+            <rect x={x} y={llmdY} width={colW} height="24" rx="10" fill={c(backend.color, dark)} fillOpacity={instanceActive ? 0.2 : 0.1} />
+            <text x={x + colW / 2} y={llmdY + 16} textAnchor="middle" fill={c(backend.color, dark)} fontSize="9" fontWeight="700">
+              llm-d — {backend.model}
             </text>
 
-            {instance.plugins.map((plugin, pi) => {
+            {backend.plugins!.map((plugin, pi) => {
               const py = llmdY + 28 + pi * (pluginH + pluginGap);
               const thisActive = pluginStepActive && pi === pluginSubStep;
               return (
                 <motion.g key={pi}>
                   <motion.rect
                     x={x + 8} y={py} width={colW - 16} height={pluginH} rx="3"
-                    fill={innerBg} stroke={c(instance.color, dark)}
+                    fill={innerBg} stroke={c(backend.color, dark)}
                     animate={{ strokeWidth: thisActive ? 1.5 : 0.3, strokeOpacity: thisActive ? 1 : 0.3 }}
                     transition={{ duration: 0.15 }}
                   />
                   <motion.rect
                     x={x + 8} y={py} width={colW - 16} height={pluginH} rx="3"
-                    fill={c(instance.color, dark)}
+                    fill={c(backend.color, dark)}
                     animate={{ fillOpacity: thisActive ? 0.25 : 0.02 }}
                     transition={{ duration: 0.15 }}
                   />
-                  <text x={x + colW / 2} y={py + 12} textAnchor="middle" fill={c(instance.color, dark)} fontSize="7" fontWeight="500">{plugin}</text>
+                  <text x={x + colW / 2} y={py + 12} textAnchor="middle" fill={c(backend.color, dark)} fontSize="7" fontWeight="500">{plugin}</text>
                 </motion.g>
               );
             })}
@@ -315,41 +359,51 @@ export function FullFlow({ step, req, dark }: Props) {
         );
       })}
 
-      {/* === VLLM PODS === */}
-      {llmdInstances.map((instance, ii) => {
+      {/* === VLLM PODS (for llmd and vllm types) === */}
+      {backends.map((backend, ii) => {
+        if (backend.type === 'external') return null;
         const colX = colStartX + ii * (colW + colGap);
         const isTarget = req.instance === ii;
         const podStepActive = isTarget && isActive(6);
 
-        const podCount = instance.vllmPods;
+        const podCount = backend.vllmPods!;
         const podGap2 = 6;
         const podW = (colW - (podCount - 1) * podGap2) / podCount;
+
+        // For standalone vLLM, pods start where llm-d box would be
+        const podsY = backend.type === 'vllm' ? llmdY : vllmY;
 
         return Array.from({ length: podCount }).map((_, pi) => {
           const px = colX + pi * (podW + podGap2);
           const thisPodActive = podStepActive && pi === req.pod && pi < podCount;
+          // For standalone vLLM, activate on step 4+ (no scheduler step)
+          const vllmDirectActive = backend.type === 'vllm' && isTarget && isActiveOrPast(4) && step <= 6;
+          const podActive = thisPodActive || (vllmDirectActive && pi === req.pod);
+
+          // For standalone vLLM, make the pod taller to fill the space
+          const podH = backend.type === 'vllm' ? vllmStandaloneH : podInnerH;
 
           return (
             <motion.g key={`vllm-${ii}-${pi}`} variants={scaleIn}>
               <motion.rect
-                x={px} y={vllmY} width={podW} height={podInnerH} rx="7"
+                x={px} y={podsY} width={podW} height={podH} rx="7"
                 fill={boxBg} stroke={c('#22d3ee', dark)}
-                animate={{ strokeWidth: thisPodActive ? 2 : 0.8, strokeOpacity: thisPodActive ? 1 : 0.25 }}
+                animate={{ strokeWidth: podActive ? 2 : 0.8, strokeOpacity: podActive ? 1 : 0.25 }}
                 transition={{ duration: 0.3 }}
               />
               <motion.rect
-                x={px} y={vllmY} width={podW} height={podInnerH} rx="7"
+                x={px} y={podsY} width={podW} height={podH} rx="7"
                 fill={c('#22d3ee', dark)}
-                animate={{ fillOpacity: thisPodActive ? 0.1 : 0 }}
+                animate={{ fillOpacity: podActive ? 0.1 : 0 }}
                 transition={{ duration: 0.3 }}
               />
-              <text x={px + podW / 2} y={vllmY + 13} textAnchor="middle" fill={c('#22d3ee', dark)} fontSize="7" fontWeight="600">
-                vLLM Pod {pi + 1}
+              <text x={px + podW / 2} y={podsY + 13} textAnchor="middle" fill={c('#22d3ee', dark)} fontSize="7" fontWeight="600">
+                {backend.type === 'vllm' ? `vLLM — ${backend.model}` : `vLLM Pod ${pi + 1}`}
               </text>
 
               {vllmFeatures.map((f, fi) => {
-                const fy = vllmY + podHeaderH + fi * (featureH + featureGap);
-                const featureActive = thisPodActive && instance.activeFeatures.includes(fi);
+                const fy = podsY + podHeaderH + fi * (featureH + featureGap);
+                const featureActive = podActive && (backend.activeFeatures ?? []).includes(fi);
                 return (
                   <motion.g key={fi}>
                     <motion.rect
@@ -378,10 +432,64 @@ export function FullFlow({ step, req, dark }: Props) {
         });
       })}
 
-      {/* === HARDWARE VENDOR LABELS (inside each group, below vLLM pods) === */}
-      {llmdInstances.map((instance, ii) => {
+      {/* === EXTERNAL API BOXES (type: external) — stacked models === */}
+      {backends.map((backend, ii) => {
+        if (backend.type !== 'external' || !backend.externalModels) return null;
         const x = colStartX + ii * (colW + colGap);
-        const hwLabelY = vllmY + podInnerH + 6;
+        const isTarget = req.instance === ii;
+        const colActive = isTarget && isActiveOrPast(4) && step <= 6;
+
+        return (
+          <motion.g key={`ext-col-${ii}`}>
+            {/* Column header */}
+            <text
+              x={x + colW / 2} y={llmdY + 12}
+              textAnchor="middle" fill={colActive ? textBright : textMain}
+              fontSize="9" fontWeight="700"
+            >
+              External Models
+            </text>
+
+            {backend.externalModels.map((ext, ei) => {
+          const ey = llmdY + extHeaderH + ei * (extBoxH + extGap);
+          const thisActive = isTarget && isActiveOrPast(4) && step <= 6 && req.pod === ei;
+
+          return (
+            <motion.g key={`ext-${ii}-${ei}`} variants={scaleIn}>
+              <motion.rect
+                x={x} y={ey} width={colW} height={extBoxH} rx="8"
+                fill={boxBg} stroke={c(ext.color, dark)}
+                animate={{ strokeWidth: thisActive ? 2.5 : 1, strokeOpacity: thisActive ? 1 : 0.35 }}
+                transition={{ duration: 0.3 }}
+              />
+              <motion.rect
+                x={x} y={ey} width={colW} height={extBoxH} rx="8"
+                fill={c(ext.color, dark)}
+                animate={{ fillOpacity: thisActive ? 0.1 : 0 }}
+                transition={{ duration: 0.3 }}
+              />
+              <rect x={x} y={ey} width={colW} height="22" rx="8" fill={c(ext.color, dark)} fillOpacity={thisActive ? 0.2 : 0.1} />
+              <text x={x + colW / 2} y={ey + 15} textAnchor="middle" fill={c(ext.color, dark)} fontSize="8" fontWeight="700">
+                {ext.model}
+              </text>
+              <text x={x + colW / 2} y={ey + 34} textAnchor="middle" fill={textMain} fontSize="7" fontWeight="500">
+                {ext.provider} API
+              </text>
+              <text x={x + colW / 2} y={ey + extBoxH - 8} textAnchor="middle" fontSize="11" opacity={thisActive ? 1 : 0.4}>
+                ☁️
+              </text>
+            </motion.g>
+          );
+        })}
+          </motion.g>
+        );
+      })}
+
+      {/* === HARDWARE VENDOR LABELS (llmd and vllm types only) === */}
+      {backends.map((backend, ii) => {
+        if (backend.type === 'external' || !backend.hw) return null;
+        const x = colStartX + ii * (colW + colGap);
+        const hwLabelY = (backend.type === 'vllm' ? llmdY + vllmStandaloneH : vllmY + podInnerH) + 6;
         const isTarget = req.instance === ii;
         const active = isTarget && isActiveOrPast(4) && step <= 6;
 
@@ -389,18 +497,18 @@ export function FullFlow({ step, req, dark }: Props) {
           <motion.g key={`hw-${ii}`} variants={scaleIn}>
             <motion.rect
               x={x + 20} y={hwLabelY} width={colW - 40} height={hwLabelH} rx="4"
-              fill={innerBg} stroke={c(instance.hw.color, dark)}
+              fill={innerBg} stroke={c(backend.hw.color, dark)}
               animate={{ strokeWidth: active ? 1.5 : 0.5, strokeOpacity: active ? 0.8 : 0.3 }}
               transition={{ duration: 0.3 }}
             />
             <motion.rect
               x={x + 20} y={hwLabelY} width={colW - 40} height={hwLabelH} rx="4"
-              fill={c(instance.hw.color, dark)}
+              fill={c(backend.hw.color, dark)}
               animate={{ fillOpacity: active ? 0.12 : 0.02 }}
               transition={{ duration: 0.3 }}
             />
-            <text x={x + colW / 2} y={hwLabelY + 15} textAnchor="middle" fill={c(instance.hw.color, dark)} fontSize="8" fontWeight="600">
-              {instance.hw.label}
+            <text x={x + colW / 2} y={hwLabelY + 15} textAnchor="middle" fill={c(backend.hw.color, dark)} fontSize="8" fontWeight="600">
+              {backend.hw.label}
             </text>
           </motion.g>
         );

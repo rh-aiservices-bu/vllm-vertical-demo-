@@ -12,8 +12,7 @@ import { AnimatedStackSlide } from './components/AnimatedStackSlide';
 const BASE = import.meta.env.BASE_URL;
 
 const imageSlides = [
-  { page: 8, src: `${BASE}maas.png`, title: 'Model as a Service', subtitle: 'Control access and consumption to both self-hosted and proprietary models' },
-  { page: 9, src: `${BASE}model-catalog.png`, title: 'Model Catalog', subtitle: 'Validated models with performance and compatibility verified by Red Hat' },
+  { page: 8, src: `${BASE}model-catalog.png`, title: 'Model Catalog', subtitle: 'Validated models with performance and compatibility verified by Red Hat' },
 ];
 
 function App() {
@@ -234,7 +233,7 @@ function App() {
                 ? 'Vertical Scaling Optimizations'
                 : currentPage <= 7
                   ? 'Horizontal Scaling with llm-d'
-                  : 'Platform Capabilities'}
+                  : 'Model Catalog'}
           </div>
           <button
             onClick={nextPage}

@@ -2,22 +2,43 @@ import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   FullFlow, requests, TOTAL_STEPS,
-  userApps, llmdInstances, c,
+  userApps, backends, c,
 } from './diagrams/FullFlow';
 
 const STEP_MS = 1500;
 
 function getNarrative(step: number, req: typeof requests[0], dark: boolean) {
   const app = userApps[req.user];
-  const inst = llmdInstances[req.instance];
+  const backend = backends[req.instance];
   switch (step) {
     case 0: return { pct: 2, color: c('#64748b', dark), text: `Waiting for next request...` };
     case 1: return { pct: 2, color: c('#22d3ee', dark), text: `${app} sends request — ${req.modelLabel}` };
     case 2: return { pct: 13, color: c('#ef4444', dark), text: `Request enters MaaS Gateway` };
     case 3: return { pct: 19, color: c('#ef4444', dark), text: `Checking policies...` };
-    case 4: return { pct: 38, color: c(inst.color, dark), text: `Routing to llm-d for ${inst.model}` };
-    case 5: return { pct: 44, color: c(inst.color, dark), text: `Running scheduler plugins...` };
-    case 6: return { pct: 60, color: c('#22d3ee', dark), text: `Assigned to vLLM Pod ${req.pod + 1} on ${inst.hw.label}` };
+    case 4: {
+      if (backend.type === 'external') {
+        const ext = backend.externalModels?.[req.pod];
+        return { pct: 38, color: c(ext?.color ?? backend.color, dark), text: `Routing to ${ext?.model ?? 'external'} (${ext?.provider ?? ''})` };
+      }
+      if (backend.type === 'vllm') return { pct: 38, color: c(backend.color, dark), text: `Routing to vLLM for ${backend.model}` };
+      return { pct: 38, color: c(backend.color, dark), text: `Routing to llm-d for ${backend.model}` };
+    }
+    case 5: {
+      if (backend.type === 'external') {
+        const ext = backend.externalModels?.[req.pod];
+        return { pct: 44, color: c(ext?.color ?? backend.color, dark), text: `Forwarding to ${ext?.provider ?? ''} API...` };
+      }
+      if (backend.type === 'vllm') return { pct: 44, color: c('#22d3ee', dark), text: `Direct routing to vLLM instance` };
+      return { pct: 44, color: c(backend.color, dark), text: `Running scheduler plugins...` };
+    }
+    case 6: {
+      if (backend.type === 'external') {
+        const ext = backend.externalModels?.[req.pod];
+        return { pct: 60, color: c(ext?.color ?? backend.color, dark), text: `Response from ${ext?.model ?? 'external'}` };
+      }
+      if (backend.type === 'vllm') return { pct: 60, color: c('#22d3ee', dark), text: `Running on vLLM — ${backend.hw!.label}` };
+      return { pct: 60, color: c('#22d3ee', dark), text: `Assigned to vLLM Pod ${req.pod + 1} on ${backend.hw!.label}` };
+    }
     default: return { pct: 50, color: c('#64748b', dark), text: '' };
   }
 }

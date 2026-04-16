@@ -14,8 +14,7 @@ const pages: PageDef[] = [
     label: s.title.length > 16 ? s.title.slice(0, 16) + '…' : s.title,
     group: s.category === 'vertical' ? 'vertical' as const : 'horizontal' as const,
   })),
-  { id: 8, label: 'Model as a Service', group: 'outro' },
-  { id: 9, label: 'Model Catalog', group: 'outro' },
+  { id: 8, label: 'Model Catalog', group: 'outro' },
 ];
 
 const groupColor = (group: string, d: boolean) => {
@@ -97,7 +96,7 @@ export function StageTimeline({ currentPage, goToPage, darkMode: d }: Props) {
                   animate={isActive ? { scale: [1, 1.15, 1] } : { scale: 1 }}
                   transition={isActive ? { repeat: Infinity, duration: 2 } : {}}
                 >
-                  {page.id === 0 ? '⬟' : page.id <= 7 ? page.id : page.id === 8 ? '◈' : '◉'}
+                  {page.id === 0 ? '⬟' : page.id <= 7 ? page.id : '◉'}
                 </motion.div>
                 <span
                   className={`absolute top-9 text-[9px] whitespace-nowrap font-medium transition-colors ${
